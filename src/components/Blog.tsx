@@ -36,7 +36,7 @@ export default function Blog() {
     "@context": "https://schema.org",
     "@type": "Blog",
     "name": "Araujo Cleaning Services Official Blog",
-    "description": "Expert advice, cleaning hacks, and home maintenance tips from Boston's premium cleaning team.",
+    "description": "Expert advice, cleaning hacks, and home maintenance tips from Georgia's premium home cleaning team.",
     "publisher": {
       "@type": "Organization",
       "name": "Araujo Cleaning Services"

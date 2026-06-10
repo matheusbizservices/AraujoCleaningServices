@@ -26,13 +26,13 @@ export default function AdLandingPage() {
             Special Ad Campaign Offer
           </div>
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight">
-            Premium Home Detailing <br />
+            Premium Home Cleaning <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-200">
               Without the Guesswork
             </span>
           </h1>
           <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Boston's top-rated, 100% owner-supervised cleaning team. Secure your exclusive walkthrough appointment instantly below to receive an exact, customized service estimate!
+            Georgia's top-rated, 100% owner-supervised premium home cleaning team. Secure your exclusive walkthrough appointment instantly below to receive an exact, customized service estimate!
           </p>
           <div className="flex flex-wrap gap-4 justify-center text-xs text-slate-400 font-semibold pt-2">
             <span className="flex items-center gap-1.5 text-blue-400">✓ Fully Vetted & Insured Staff</span>
@@ -48,7 +48,7 @@ export default function AdLandingPage() {
           {/* Ad Conversion Bullet Points & Trust Evidence block (Left Side) */}
           <div className="lg:col-span-5 space-y-8">
             <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xs border border-slate-200/80">
-              <h2 className="text-xl font-bold text-slate-900 mb-6">Why Boston Homeowners Choose Araujo</h2>
+              <h2 className="text-xl font-bold text-slate-900 mb-6">Why Georgia Homeowners Choose Araujo</h2>
               
               <div className="space-y-6">
                 <div className="flex gap-4">

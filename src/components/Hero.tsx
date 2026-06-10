@@ -50,12 +50,12 @@ export default function Hero({ setCurrentTab }: HeroProps) {
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 mb-6 leading-tight">
             Araujo Cleaning<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-blue-500">
-              Premium Home Detailing
+              Premium Home Cleaning
             </span>
           </h1>
           
           <p className="text-lg sm:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
-            Over a decade of meticulous, highly reliable deep cleaning in Boston. Calculate your estimate in minutes or secure a free consultation instantly.
+            Over a decade of meticulous, highly reliable premium home cleaning based in Georgia. Calculate your estimate in minutes or secure a free consultation instantly.
           </p>
           
           {/* Landing conversion triggers */}

@@ -7,9 +7,9 @@ import {
 
 // Pricing formula variables displayed openly for full transparency!
 export const PRICING_METRICS = {
-  base: 50, // Minimum base fee
-  bedroom: 25, // cost per bedroom
-  bathroom: 35, // cost per bathroom
+  base: 40, // Minimum base fee
+  bedroom: 10, // cost per bedroom
+  bathroom: 15, // cost per bathroom
   sqft: 0.03, // 3 cents per sqft
   cleaningType: {
     standard: 1.0, // multiplier
@@ -48,11 +48,7 @@ export default function PriceEstimator() {
   const [total, setTotal] = useState(0);
 
   // Vercel & Ad campaign integrations
-  const [webhookUrl, setWebhookUrl] = useState(() => {
-    return localStorage.getItem('araujo_crm_webhook') || '';
-  });
   const [countdown, setCountdown] = useState(-1);
-  const [webhookStatus, setWebhookStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   useEffect(() => {
     // Calculate total pricing dynamically using transparent formulas
@@ -105,44 +101,39 @@ export default function PriceEstimator() {
       .map(([k]) => k)
       .join(', ');
 
-    // Post to User Webhook URL if registered, to deliver instant notification trigger
-    if (webhookUrl.trim()) {
-      try {
-        setWebhookStatus('idle');
-        await fetch(webhookUrl.trim(), {
-          method: 'POST',
-          mode: 'no-cors', // bypass CORS protections for simple webhooks (Zapier, Discord, Make.com)
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            event: "New Cleaner Estimate Calculated",
-            quoteId: randomId,
-            name,
-            email,
-            phone,
-            estimatedTotal: total,
-            property: {
-              bedrooms,
-              bathrooms,
-              sqft,
-              type: cleaningType,
-              addons: activeExtras || 'None'
-            }
-          })
-        });
-        setWebhookStatus('success');
-      } catch (err) {
-        console.error('Webhook payload dispatch failure:', err);
-        setWebhookStatus('error');
-      }
+    // Post to Zapier Webhook URL for CRM automation
+    try {
+      await fetch('https://hooks.zapier.com/hooks/catch/17469172/4323t7g/', {
+        method: 'POST',
+        mode: 'no-cors', // bypass CORS protections for simple webhooks (Zapier, Discord, Make.com)
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          event: "New Cleaner Estimate Calculated",
+          quoteId: randomId,
+          name,
+          email,
+          phone,
+          estimatedTotal: total,
+          property: {
+            bedrooms,
+            bathrooms,
+            sqft,
+            type: cleaningType,
+            addons: activeExtras || 'None'
+          }
+        })
+      });
+    } catch (err) {
+      console.error('Webhook payload dispatch failure:', err);
     }
 
     // Direct automated CRM transition
     setTimeout(() => {
       setIsSubmitting(false);
       setFormSubmitted(true);
-      setCountdown(4); // Initiate automatic forward countdown
+      setCountdown(18); // Initiate automatic forward countdown
     }, 1200);
   };
 
@@ -256,7 +247,7 @@ export default function PriceEstimator() {
                 {[
                   { id: 'standard', label: 'Standard Clean', desc: 'Maintenance dusting, vacuuming & sweep.' },
                   { id: 'deep', label: 'Deep Clean', desc: 'Adds baseboards, doors, detailed crevices.' },
-                  { id: 'moveInOut', label: 'Move In/Out', desc: 'Empty house thorough detailing.' }
+                  { id: 'moveInOut', label: 'Move In/Out', desc: 'Empty house thorough cleaning.' }
                 ].map((type) => (
                   <button
                     key={type.id}
@@ -513,7 +504,7 @@ export default function PriceEstimator() {
                       <span className="text-3xl font-black font-mono text-white">${total}</span>
                     </div>
                     <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
-                      This represents an indicative clean rate base. Lock details by scheduling a quick walkthrough below!
+                      Please note: This represents an indicative clean rate base. Rates may vary a lot when we go to actually do the estimate because we don't know what the house actually looks like and its actual condition. We must schedule a quick walkthrough to provide the final locked amount.
                     </p>
                   </div>
 
@@ -532,50 +523,6 @@ export default function PriceEstimator() {
                       </button>
                     </div>
                   )}
-
-                  {/* Quote Automation Simulation status (Request #2) */}
-                  <div className="bg-blue-50/60 border border-blue-100 rounded-2xl p-4 mb-6 text-xs text-blue-800 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
-                        <span className="font-bold">Araujo CRM Automation Activated</span>
-                      </div>
-                      <span className="text-[10px] text-blue-600 font-bold bg-blue-100/50 px-2 py-0.5 rounded-full">Active</span>
-                    </div>
-                    <div className="space-y-1 text-[11px] text-blue-700 font-mono">
-                      <p>✓ SMS quote details sent to: {phone}</p>
-                      <p>✓ Proposal draft dispatched to: {email}</p>
-                      <p>✓ Active ticket saved under: {quoteId}</p>
-                    </div>
-                    
-                    {/* CRM Webhook URL Manager */}
-                    <div className="border-t border-blue-200/50 pt-3 mt-3 text-left">
-                      <label className="block text-[10px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">
-                        CRM Webhook URL (Zapier, Discord, Slack)
-                      </label>
-                      <div className="flex gap-2">
-                        <input 
-                          type="url"
-                          placeholder="https://make.com/webhook/..."
-                          value={webhookUrl}
-                          onChange={(e) => {
-                            setWebhookUrl(e.target.value);
-                            localStorage.setItem('araujo_crm_webhook', e.target.value);
-                          }}
-                          className="flex-grow bg-white border border-slate-200 text-[11px] p-2 rounded-xl text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-600"
-                        />
-                      </div>
-                      {webhookStatus === 'success' && (
-                        <p className="text-[10px] text-emerald-600 font-medium mt-1">✓ Instant lead notification posted successfully!</p>
-                      )}
-                      {webhookStatus === 'error' && (
-                        <p className="text-[10px] text-rose-500 font-medium mt-1">⚠️ Webhook submission failed or skipped.</p>
-                      )}
-                      {!webhookUrl && (
-                        <p className="text-[9px] text-slate-400 mt-1">Paste standard webhook to trigger instantly when users run ads.</p>
-                      )}
-                    </div>
-                  </div>
 
                   {/* Calendly Booking (Request #3) */}
                   <div className="mt-2 space-y-4">
