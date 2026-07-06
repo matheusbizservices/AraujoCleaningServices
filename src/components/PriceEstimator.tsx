@@ -101,32 +101,20 @@ export default function PriceEstimator() {
       .map(([k]) => k)
       .join(', ');
 
-    // Post to Zapier Webhook URL for CRM automation
+    const submittedAt = new Date().toLocaleString();
+    const serviceLabel = { standard: 'Standard Clean', deep: 'Deep Clean', moveInOut: 'Move In/Out Clean' }[cleaningType];
+
+    // Notify Slack via our own serverless endpoint (keeps the webhook URL server-side only)
     try {
-      await fetch('https://hooks.zapier.com/hooks/catch/17469172/4323t7g/', {
+      await fetch('/api/notify', {
         method: 'POST',
-        mode: 'no-cors', // bypass CORS protections for simple webhooks (Zapier, Discord, Make.com)
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          event: "New Cleaner Estimate Calculated",
-          quoteId: randomId,
-          name,
-          email,
-          phone,
-          estimatedTotal: total,
-          property: {
-            bedrooms,
-            bathrooms,
-            sqft,
-            type: cleaningType,
-            addons: activeExtras || 'None'
-          }
+          text: `📋 *New Estimate Request* (Ref ${randomId})\n*Name:* ${name}\n*Phone:* ${phone}\n*Email:* ${email}\n*Service:* ${serviceLabel}${activeExtras ? `\n*Add-ons:* ${activeExtras}` : ''}\n*Est. Total:* $${total}\n*Submitted:* ${submittedAt}`
         })
       });
     } catch (err) {
-      console.error('Webhook payload dispatch failure:', err);
+      console.error('Slack notify dispatch failure:', err);
     }
 
     // Direct automated CRM transition
