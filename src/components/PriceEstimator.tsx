@@ -101,20 +101,29 @@ export default function PriceEstimator() {
       .map(([k]) => k)
       .join(', ');
 
-    const submittedAt = new Date().toLocaleString();
     const serviceLabel = { standard: 'Standard Clean', deep: 'Deep Clean', moveInOut: 'Move In/Out Clean' }[cleaningType];
 
-    // Notify Slack via our own serverless endpoint (keeps the webhook URL server-side only)
+    // Notifies Slack and syncs the lead into HubSpot via our own serverless endpoint
+    // (keeps the Slack webhook URL and HubSpot token server-side only)
     try {
-      await fetch('/api/notify', {
+      await fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text: `📋 *New Estimate Request* (Ref ${randomId})\n*Name:* ${name}\n*Phone:* ${phone}\n*Email:* ${email}\n*Service:* ${serviceLabel}${activeExtras ? `\n*Add-ons:* ${activeExtras}` : ''}\n*Est. Total:* $${total}\n*Submitted:* ${submittedAt}`
+          source: 'estimate',
+          name,
+          email,
+          phone,
+          details: {
+            serviceLabel,
+            estimatedTotal: total,
+            addons: activeExtras || undefined,
+            quoteId: randomId,
+          },
         })
       });
     } catch (err) {
-      console.error('Slack notify dispatch failure:', err);
+      console.error('Lead sync dispatch failure:', err);
     }
 
     // Direct automated CRM transition

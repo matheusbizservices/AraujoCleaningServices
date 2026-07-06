@@ -64,18 +64,14 @@ export default function LeadMagnetPopup() {
     if (!name || !email) return;
     setIsSubmitting(true);
 
-    const submittedAt = new Date().toLocaleString();
-
     try {
-      await fetch('/api/notify', {
+      await fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: `🧹 *New Checklist Lead*\n*Name:* ${name}\n*Email:* ${email}\n*Submitted:* ${submittedAt}`,
-        }),
+        body: JSON.stringify({ source: 'checklist', name, email }),
       });
     } catch (err) {
-      console.error('Lead magnet webhook dispatch failure:', err);
+      console.error('Lead sync dispatch failure:', err);
     }
 
     localStorage.setItem(SUBMITTED_KEY, '1');
